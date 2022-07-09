@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/google/wire"
-	"github.com/gorillazer/ginny-util/graceful"
+	"github.com/goriller/ginny-util/graceful"
 	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
