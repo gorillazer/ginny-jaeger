@@ -9,8 +9,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"github.com/uber/jaeger-client-go/config"
-	jaegercfg "github.com/uber/jaeger-client-go/config"
-	jaegerlog "github.com/uber/jaeger-client-go/log"
 	"github.com/uber/jaeger-lib/metrics"
 )
 
@@ -32,17 +30,21 @@ func NewConfiguration(v *viper.Viper) (*config.Configuration, error) {
 }
 
 // NewJaegerTracer NewJaegerTracer for current service
-func NewJaegerTracer(cfg *config.Configuration) (opentracing.Tracer, error) {
+func NewJaegerTracer(ctx context.Context, cfg *config.Configuration, opt []config.Option) (opentracing.Tracer, error) {
 	// Example logger and metrics factory. Use github.com/uber/jaeger-client-go/log
 	// and github.com/uber/jaeger-lib/metrics respectively to bind to real logging and metrics
 	// frameworks.
-	jLogger := jaegerlog.StdLogger
+	jLogger := &stdLog{}
 	jMetricsFactory := metrics.NullFactory
 
+	opts := []config.Option{
+		config.Logger(jLogger),
+		config.Metrics(jMetricsFactory),
+	}
+	opts = append(opts, opt...)
+
 	// Initialize tracer with a logger and a metrics factory
-	tracer, closer, err := cfg.NewTracer(
-		jaegercfg.Logger(jLogger),
-		jaegercfg.Metrics(jMetricsFactory))
+	tracer, closer, err := cfg.NewTracer(opts...)
 
 	opentracing.SetGlobalTracer(tracer)
 	if err != nil {
