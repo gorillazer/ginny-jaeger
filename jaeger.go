@@ -13,7 +13,10 @@ import (
 )
 
 // ProviderSet
-var ProviderSet = wire.NewSet(NewConfiguration, NewJaegerTracer)
+var (
+	ProviderSet           = wire.NewSet(NewConfiguration, NewJaegerTracer)
+	ProviderSetWithOption = wire.NewSet(NewConfiguration, NewJaegerTracerWithOption)
+)
 
 // NewConfiguration
 func NewConfiguration(v *viper.Viper) (*config.Configuration, error) {
@@ -30,7 +33,12 @@ func NewConfiguration(v *viper.Viper) (*config.Configuration, error) {
 }
 
 // NewJaegerTracer NewJaegerTracer for current service
-func NewJaegerTracer(ctx context.Context, cfg *config.Configuration,
+func NewJaegerTracer(ctx context.Context, cfg *config.Configuration) (opentracing.Tracer, error) {
+	return NewJaegerTracerWithOption(ctx, cfg)
+}
+
+// NewJaegerTracerWithOption
+func NewJaegerTracerWithOption(ctx context.Context, cfg *config.Configuration,
 	opt ...config.Option) (opentracing.Tracer, error) {
 	// Example logger and metrics factory. Use github.com/uber/jaeger-client-go/log
 	// and github.com/uber/jaeger-lib/metrics respectively to bind to real logging and metrics
