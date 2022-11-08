@@ -54,11 +54,11 @@ func NewJaegerTracerWithOption(ctx context.Context, cfg *config.Configuration,
 
 	// Initialize tracer with a logger and a metrics factory
 	tracer, closer, err := cfg.NewTracer(opts...)
-
-	opentracing.SetGlobalTracer(tracer)
 	if err != nil {
 		return nil, errors.Wrap(err, "create jaeger tracer error")
 	}
+
+	opentracing.SetGlobalTracer(tracer)
 	graceful.AddCloser(func(ctx context.Context) error {
 		return closer.Close()
 	})
